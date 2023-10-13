@@ -1,2 +1,13 @@
-# webview-multidisplay-android-demo
-Android Kotlin app demonstrating how to use multiple WebView in a Multi-Display setup
+# S57 WebView Multi-Display Demo App 
+
+## Overview
+
+TBA
+
+## Quick guide
+
+TBA
+
+## Known issues and limitations
+
+TBA
