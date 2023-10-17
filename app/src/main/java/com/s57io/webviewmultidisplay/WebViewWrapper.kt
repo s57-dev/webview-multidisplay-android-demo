@@ -1,5 +1,6 @@
 package com.s57io.webviewmultidisplay
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.http.SslError
 import android.os.Build
@@ -36,7 +37,12 @@ class WebViewWrapper() {
          * @param error - SslError instance
          */
         override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
-            handler?.proceed()
+            Log.d(Constants.LOG_TAG, "onReceivedSslError($viewId): $error")
+            if (Constants.ACCEPT_SELF_SIGNED_CERTIFICATES) {
+                handler?.proceed()
+            } else {
+                handler?.cancel()
+            }
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
