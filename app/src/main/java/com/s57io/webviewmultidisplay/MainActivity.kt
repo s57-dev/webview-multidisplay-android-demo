@@ -17,8 +17,8 @@ import androidx.core.app.ActivityCompat
 
 class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate {
 
-    private val activeViewsMap : HashMap<Long, View> = HashMap<Long, View>()
-    private val activeDisplaysMap : HashMap<Long, Int> = HashMap<Long, Int>()
+    private val activeViewsMap : HashMap<Long, View> = HashMap()
+    private val activeDisplaysMap : HashMap<Long, Int> = HashMap()
     private val webViewManager: WebViewWrapper = WebViewWrapper()
     private var presentationDisplays = mutableListOf<PresentationDisplay>()
     private val WEBLAUNCHER_PERMISSIONS = 101
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
     private fun createMainWebView(url : String) : View {
         val view = layoutInflater.inflate(R.layout.webview_window, null)
 
-        var webView : WebViewWrapper.CustomWebView = webViewManager.createWebView(this@MainActivity, this)
+        val webView : WebViewWrapper.CustomWebView = webViewManager.createWebView(this@MainActivity, this)
         Log.d(Constants.LOG_TAG, "createMainWebView UA: $webView.settings.userAgentString")
 
         webView.loadUrl(url)
@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
         @JavascriptInterface
         fun getConnectedDisplays(): Int {
             val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-            val displayNum = displayManager.getDisplays().size
+            val displayNum = displayManager.displays.size
             Log.i(TAG, "Found $displayNum displays connected.")
             return displayNum
         }

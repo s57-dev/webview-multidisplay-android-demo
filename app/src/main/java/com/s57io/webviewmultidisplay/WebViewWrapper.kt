@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
 
-class WebViewWrapper() {
+class WebViewWrapper {
 
     interface WebViewWrapperDelegate {
         fun showWindow(view : WebView, delegate : WebViewWrapperActionDelegate, viewId : Long)
@@ -25,7 +25,7 @@ class WebViewWrapper() {
         fun closeAction()
     }
 
-    private class WebViewClientWrapper(private val delegate: WebViewWrapper.WebViewWrapperDelegate,
+    private class WebViewClientWrapper(private val delegate: WebViewWrapperDelegate,
                                        private val viewId: Long
     ) : WebViewClient() {
         /**
@@ -53,11 +53,12 @@ class WebViewWrapper() {
         }
     }
 
-    class WebChromeClientWrapper(context : Context, delegate : WebViewWrapper.WebViewWrapperDelegate, viewId : Long) : WebChromeClient(), WebViewWrapperActionDelegate {
+    class WebChromeClientWrapper(context : Context,
+                                 private val delegate: WebViewWrapperDelegate,
+                                 private val viewId: Long
+    ) : WebChromeClient(), WebViewWrapperActionDelegate {
         private val context = context.applicationContext
-        private val delegate = delegate
-        private val viewId = viewId
-        private var callback : WebChromeClient.CustomViewCallback? = null
+        private var callback : CustomViewCallback? = null
         private var isFullscreen = false
 
         init {
@@ -65,7 +66,7 @@ class WebViewWrapper() {
         }
 
         override fun onPermissionRequest(request: PermissionRequest?) {
-            request!!.resources.forEach { Log.d(Constants.LOG_TAG, "PermissionRequest: "+it) }
+            request!!.resources.forEach { Log.d(Constants.LOG_TAG, "PermissionRequest: $it") }
             //request!!.deny()
             request.grant(request.resources)
         }
@@ -73,10 +74,10 @@ class WebViewWrapper() {
         override fun onReceivedTitle(view: WebView?, title: String?) {
             super.onReceivedTitle(view, title)
             // The title may contain the URL if the new window or pop-up is just navigating to a URL.
-            Log.d(Constants.LOG_TAG, "onReceivedTitle(" + viewId + "): $title")
+            Log.d(Constants.LOG_TAG, "onReceivedTitle($viewId): $title")
         }
         override fun onCreateWindow(view: WebView?, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message?): Boolean {
-            Log.d(Constants.LOG_TAG, "onCreateWindow(" + viewId + ")")
+            Log.d(Constants.LOG_TAG, "onCreateWindow($viewId)")
 
             val webViewWrapper = WebViewWrapper()
             val newWebView = webViewWrapper.createWebView(context, delegate)
@@ -89,7 +90,7 @@ class WebViewWrapper() {
             return true
         }
 
-        override fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
+        override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
             Log.d(Constants.LOG_TAG, "onShowCustomView() invoked")
             super.onShowCustomView(view, callback)
 
@@ -102,20 +103,20 @@ class WebViewWrapper() {
         override fun onHideCustomView() {
             super.onHideCustomView()
             isFullscreen = false
-            Log.d(Constants.LOG_TAG, "onHideCustomView(" + viewId + ")")
+            Log.d(Constants.LOG_TAG, "onHideCustomView($viewId)")
             delegate.onCloseFullscreen(-viewId)
             delegate.setWebViewVisibility(viewId, View.VISIBLE)
         }
 
         override fun onCloseWindow(window: WebView?) {
             super.onCloseWindow(window)
-            Log.d(Constants.LOG_TAG, "onCloseWindow(" + viewId + ")")
+            Log.d(Constants.LOG_TAG, "onCloseWindow($viewId)")
         }
 
         // Implementing WebViewWrapperActionDelegate
         override fun closeAction() {
             if (isFullscreen) {
-                Log.d(Constants.LOG_TAG, "Closing fullscreen viewId = " + viewId)
+                Log.d(Constants.LOG_TAG, "Closing fullscreen viewId = $viewId")
                 callback?.onCustomViewHidden()
                 delegate.setWebViewVisibility(viewId, View.VISIBLE)
             }
@@ -123,9 +124,9 @@ class WebViewWrapper() {
 
     }
 
-    class CustomWebView(context: Context, delegate: WebViewWrapper.WebViewWrapperDelegate) : WebView(context) {
+    class CustomWebView(context: Context, delegate: WebViewWrapperDelegate) : WebView(context) {
         val viewId: Long = System.currentTimeMillis()
-        val webChromeClientWrapper = WebViewWrapper.WebChromeClientWrapper(context, delegate, viewId)
+        val webChromeClientWrapper = WebChromeClientWrapper(context, delegate, viewId)
 
         init {
             Log.d(Constants.LOG_TAG, "Create WebView viewId = $viewId")
@@ -152,7 +153,7 @@ class WebViewWrapper() {
         }
     }
 
-    fun createWebView(context: Context, delegate : WebViewWrapper.WebViewWrapperDelegate) : CustomWebView {
+    fun createWebView(context: Context, delegate : WebViewWrapperDelegate) : CustomWebView {
         return CustomWebView(context, delegate)
     }
 

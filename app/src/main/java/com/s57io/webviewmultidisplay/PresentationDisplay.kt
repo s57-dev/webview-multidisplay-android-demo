@@ -7,7 +7,7 @@ import android.view.Display
 import android.view.View
 import android.widget.RelativeLayout
 
-public class PresentationDisplay(outerContext: Context?, display: Display?) : Presentation(outerContext, display) {
+class PresentationDisplay(outerContext: Context?, display: Display?) : Presentation(outerContext, display) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,7 +15,7 @@ public class PresentationDisplay(outerContext: Context?, display: Display?) : Pr
     }
 
     fun addWebView(view : View) {
-        var itemsLayout: RelativeLayout = findViewById(R.id.presentation_container)
+        val itemsLayout: RelativeLayout = findViewById(R.id.presentation_container)
         itemsLayout.addView(view)
     }
 
