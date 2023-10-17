@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.hardware.display.DisplayManager
 import android.os.Bundle
 import android.util.Log
+import android.view.Display
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
     private var presentationDisplays = mutableListOf<PresentationDisplay>()
     private val WEBLAUNCHER_PERMISSIONS = 101
     private val javascriptBridge = JavascriptBridge()
+    private val TAG = "WWMDMainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,8 +48,9 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
 
     private fun initializePresentationDisplays() {
         val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-        val displays = displayManager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION)
-        displays.forEach { display ->
+        val allDisplays = displayManager.displays
+
+        allDisplays.filter { it.displayId != Display.DEFAULT_DISPLAY }.forEach { display ->
             presentationDisplays.add(PresentationDisplay(this, display).apply { show() })
         }
     }
@@ -171,6 +174,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
         super.onPageFinished(view, url, viewId)
 
         fun addWebViewToDisplay(displayIndex: Int) {
+            Log.d(TAG, "add to display: $displayIndex")
             activeViewsMap[viewId]?.let { webView ->
                 if (displayIndex == 0) {
                     addWebView(webView)
@@ -218,7 +222,9 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
         @JavascriptInterface
         fun getConnectedDisplays(): Int {
             val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-            return displayManager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION).size
+            val displayNum = displayManager.getDisplays().size
+            Log.i(TAG, "Found $displayNum displays connected.")
+            return displayNum
         }
 
     }
