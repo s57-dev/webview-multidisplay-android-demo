@@ -4,7 +4,7 @@
 
 The S57 WebView Multi-Display Demo App is a simple Android application that demonstrates how to
 utilize multiple displays efficiently in a WebView application and communicate between the WebView
-instances.
+instances. The application is developed and maintained by S57 Team (https://www.s57.io/).
 
 See the server side implementation here:
 
