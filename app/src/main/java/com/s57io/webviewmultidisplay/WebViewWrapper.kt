@@ -24,9 +24,17 @@ class WebViewWrapper() {
         fun closeAction()
     }
 
-    private class WebViewClientWrapper(delegate : WebViewWrapper.WebViewWrapperDelegate, viewId : Long) : WebViewClient() {
-        private val delegate = delegate
-        private val viewId = viewId
+    private class WebViewClientWrapper(private val delegate: WebViewWrapper.WebViewWrapperDelegate,
+                                       private val viewId: Long
+    ) : WebViewClient() {
+        /**
+         * Accept SSL certificate.
+         * Warning: Do not use this in production code. Accepting all certificates is insecure.
+         *
+         * @param view - WebView instance
+         * @param handler - SslErrorHandler instance
+         * @param error - SslError instance
+         */
         override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
             handler?.proceed()
         }
@@ -51,11 +59,9 @@ class WebViewWrapper() {
         }
 
         override fun onPermissionRequest(request: PermissionRequest?) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                request!!.resources.forEach { Log.d(Constants.LOG_TAG, "PermissionRequest: "+it) }
-                //request!!.deny()
-                request?.grant(request!!.resources)
-            }
+            request!!.resources.forEach { Log.d(Constants.LOG_TAG, "PermissionRequest: "+it) }
+            //request!!.deny()
+            request.grant(request.resources)
         }
 
         override fun onReceivedTitle(view: WebView?, title: String?) {
@@ -66,12 +72,12 @@ class WebViewWrapper() {
         override fun onCreateWindow(view: WebView?, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message?): Boolean {
             Log.d(Constants.LOG_TAG, "onCreateWindow(" + viewId + ")")
 
-            val webViewWrapper : WebViewWrapper = WebViewWrapper()
+            val webViewWrapper = WebViewWrapper()
             val newWebView = webViewWrapper.createWebView(context, delegate)
 
             val transport : WebView.WebViewTransport = resultMsg?.obj as WebView.WebViewTransport
             transport.webView = newWebView
-            resultMsg?.sendToTarget()
+            resultMsg.sendToTarget()
 
             delegate.showWindow(newWebView,newWebView.webChromeClientWrapper, newWebView.viewId)
             return true
