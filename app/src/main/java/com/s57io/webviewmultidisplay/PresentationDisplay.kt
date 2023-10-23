@@ -24,14 +24,14 @@ import android.view.Display
 import android.view.View
 import android.widget.RelativeLayout
 
-/*
- * The `PresentationDisplay` class extends Android's Presentation class to create secondary displays
+/**
+ * The `PresentationDisplay` extends Android's Presentation class to create secondary displays
  * for showing WebView content. It handles initializing the display layout and provides a method
  * to add WebView instances to the display.
  *
  * Usage:
  * - Create an instance by passing a Context and Display to the constructor.
- * - Call `addWebView` to add a WebView instance to the display.
+ * - Call `addWebView` to add a view instance to the display.
  */
 class PresentationDisplay(outerContext: Context?, display: Display?) : Presentation(outerContext, display) {
 
