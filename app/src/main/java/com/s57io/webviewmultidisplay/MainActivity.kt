@@ -30,13 +30,52 @@ import android.webkit.WebView
 import android.widget.Button
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+
+/**
+ * `MainActivity` is the hub for managing WebView instances across displays. It utilizes
+ * `WebViewWrapper` for WebView creation and management, and implements
+ * `WebViewWrapperDelegate` for WebView interaction callbacks.
+ *
+ * Display numbers are communicated to web applications via `JavascriptBridge`.
+ * Target displays are obtained by evaluating `getTargetDisplayIndex` for loaded
+ * pages.
+ *
+ * `WebViewWrapper` is used for WebView creation, while `MainActivity` manages
+ * display and user interactions of these WebViews.
+ *
+ * 1. **Initialization:**
+ *    - Sets up main WebView and requests permissions in `onCreate`.
+ *
+ * 2. **Main WebView Setup:**
+ *    - Initializes primary WebView with a URL in `setupMainWebView`.
+ *
+ * 3. **Presentation Displays Management:**
+ *    - Discovers secondary displays and initializes `PresentationDisplay`
+ *      instances in `initializePresentationDisplays`.
+ *
+ * 4. **WebView Management:**
+ *    - Creates root WebView in `createMainWebView`.
+ *    - Manages window pop-up and full screen requests in `createBrowserWindow`.
+ *    - Adds and removes WebViews from layout in `addWebView` and
+ *      `removeChildFromParent`.
+ *
+ * 5. **WebViewWrapperDelegate Implementations:**
+ *    - Displays WebView in a new window or fullscreen in `showWindow` and
+ *      `showFullscreen`.
+ *    - Modifies WebView visibility in `setWebViewVisibility`.
+ *    - Handles closing of fullscreen WebView in `onCloseFullscreen`.
+ *    - Assigns WebView to correct display in `onPageFinished`.
+ *
+ * 6. **JavaScript Interface:**
+ *    - Adds JavaScript interface in `addJSInterface`.
+ *    - `JavascriptBridge` provides JavaScript methods like `getConnectedDisplays`.
+ */
 
 class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate {
 
     private val activeViewsMap : HashMap<Long, View> = HashMap()
     private val activeDisplaysMap : HashMap<Long, Int> = HashMap()
-    private val webViewManager: WebViewWrapper = WebViewWrapper()
+    private val webViewWrapper: WebViewWrapper = WebViewWrapper()
     private var presentationDisplays = mutableListOf<PresentationDisplay>()
     private val WEBLAUNCHER_PERMISSIONS = 101
     private val javascriptBridge = JavascriptBridge()
@@ -75,7 +114,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
     private fun createMainWebView(url : String) : View {
         val view = layoutInflater.inflate(R.layout.webview_window, null)
 
-        val webView : WebViewWrapper.CustomWebView = webViewManager.createWebView(this@MainActivity, this)
+        val webView : WebViewWrapper.CustomWebView = webViewWrapper.createWebView(this@MainActivity, this)
         Log.d(Constants.LOG_TAG, "createMainWebView UA: $webView.settings.userAgentString")
 
         webView.loadUrl(url)
@@ -188,7 +227,6 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
 
     override fun onPageFinished(view: WebView?, url: String?, viewId: Long) {
         Log.d(Constants.LOG_TAG, "onPageFinished($viewId)")
-        super.onPageFinished(view, url, viewId)
 
         fun addWebViewToDisplay(displayIndex: Int) {
             Log.d(TAG, "add to display: $displayIndex")
