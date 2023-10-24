@@ -141,7 +141,6 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
 
     private fun createBrowserWindow(webView : View,
                                     delegate: WebViewWrapper.WebViewWrapperActionDelegate,
-                                    viewId : Long,
                                     closeButtonText : String,
                                     onRemove: () -> Unit) : View {
 
@@ -178,7 +177,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
     override fun showWindow(view: WebView, delegate: WebViewWrapper.WebViewWrapperActionDelegate, viewId: Long) {
         Log.d(Constants.LOG_TAG, "showWindow($viewId)")
 
-        val window = createBrowserWindow(view, delegate, viewId, "Close window") {
+        val window = createBrowserWindow(view, delegate, "Close window") {
             activeViewsMap.remove(viewId)
             activeDisplaysMap.remove(viewId)
         }
@@ -188,7 +187,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
     override fun showFullscreen(view: View, delegate: WebViewWrapper.WebViewWrapperActionDelegate, viewId: Long) {
         Log.d(Constants.LOG_TAG, "showFullscreen($viewId)")
 
-        val window = createBrowserWindow(view, delegate, viewId, "Close fullscreen") {
+        val window = createBrowserWindow(view, delegate, "Close fullscreen") {
             activeViewsMap.remove(viewId)
             activeDisplaysMap.remove(viewId)
         }
