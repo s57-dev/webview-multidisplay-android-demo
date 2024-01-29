@@ -258,6 +258,7 @@ class WebViewWrapper {
             webChromeClient = webChromeClientWrapper
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
             delegate.addJSInterface(this)
+            clearCache(true)
             configureSettings()
         }
 

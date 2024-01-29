@@ -245,7 +245,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
 
         fun handleDisplayIndexResult(result: String) {
             val displayIndex = result.replace("\"", "").toInt()
-            Log.d(Constants.LOG_TAG, "onPageFinished($viewId): got displayIndex = $displayIndex")
+            Log.d(Constants.LOG_TAG, "handleDisplayIndexResult($viewId): got displayIndex = $displayIndex")
 
             if (activeDisplaysMap[viewId] == null) {
                 addWebViewToDisplay(displayIndex)
@@ -253,7 +253,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
             }
         }
 
-        view?.evaluateJavascript("getTargetDisplayIndex();") { result ->
+        view?.evaluateJavascript("""try{getTargetDisplayIndex();}catch(e){'0';}""") { result ->
             result?.let {
                 if (it != "null") {
                     handleDisplayIndexResult(it)
@@ -262,6 +262,7 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
                 }
             }
         }
+
     }
 
 
@@ -272,14 +273,12 @@ class MainActivity : AppCompatActivity(), WebViewWrapper.WebViewWrapperDelegate 
     }
 
     private inner class JavascriptBridge {
-
         @JavascriptInterface
-        fun getConnectedDisplays(): Int {
+        fun getDisplayCount(): Int {
             val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
             val displayNum = displayManager.displays.size
             Log.i(TAG, "Found $displayNum displays connected.")
             return displayNum
         }
-
     }
 }
